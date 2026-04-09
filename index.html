@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Umut Akarsu</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>U</text></svg>">
+<meta property="og:title" content="Umut Akarsu" />
+<meta property="og:description" content="I'm 18, I found a loophole and graduated early. I think I am at least an 8 on Ken Wilber." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://umutakarsu.com" />
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f5f5f5;
+  color: #1a1a1a;
+  line-height: 1.6;
+  margin: 0;
+  padding: 2rem;
+}
+
+/* LAYOUT */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 4rem;
+}
+
+/* LEFT SIDEBAR */
+.sidebar {
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+}
+
+.sidebar h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.sidebar .bio {
+  font-size: 0.95rem;
+  color: #4a4a4a;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.sidebar nav {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1.5rem;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sidebar nav li {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.8rem 0;
+}
+
+.sidebar nav a {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sidebar nav a:hover {
+  text-decoration: underline;
+}
+
+.sidebar nav a::after {
+  content: "+";
+  font-size: 1.2rem;
+  color: #999;
+  font-weight: 300;
+}
+
+.sidebar .external-links {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sidebar .external-links a {
+  color: #1a1a1a;
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+.sidebar .external-links span {
+  color: #4a4a4a;
+  font-size: 0.9rem;
+}
+
+/* CONTENT AREA */
+.content {
+  padding-top: 0;
+}
+
+.content section {
+  display: none;
+}
+
+.content section.active {
+  display: block;
+}
+
+.content h2 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.content p {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* LINK LISTS (Blog, Projects, Research) */
+.link-list {
+  list-style: none;
+}
+
+.link-list li {
+  margin-bottom: 0.8rem;
+}
+
+.link-list a {
+  color: #1a1a1a;
+  text-decoration: underline;
+  font-size: 0.95rem;
+}
+
+/* ADVICE LIST */
+.advice-list {
+  list-style: none;
+  counter-reset: advice;
+}
+
+.advice-list li {
+  counter-increment: advice;
+  display: grid;
+  grid-template-columns: 3ch 1fr;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.advice-list li::before {
+  content: counter(advice) ".";
+  color: #999;
+}
+
+/* QUESTIONS LIST */
+.questions-list {
+  list-style: none;
+}
+
+.questions-list li {
+  margin-bottom: 1.2rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* MOBILE HEADER */
+.mobile-header {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mobile-header strong {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.menu-button {
+  background: none;
+  border: 1px solid #e0e0e0;
+  color: #1a1a1a;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* MOBILE MENU */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  background: #f5f5f5;
+  padding: 2rem;
+  display: none;
+  flex-direction: column;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.mobile-menu.active {
+  display: flex;
+}
+
+.mobile-menu .menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.mobile-menu h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.mobile-menu ul {
+  list-style: none;
+}
+
+.mobile-menu li {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem 0;
+}
+
+.mobile-menu a {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* MOBILE BREAKPOINT */
+@media (max-width: 900px) {
+  body { padding: 1.2rem; }
+  main { grid-template-columns: 1fr; gap: 2rem; }
+  .sidebar { display: none; }
+  .mobile-header { display: flex; }
+}
+</style>
+</head>
+
+<body>
+
+<main>
+
+<aside class="sidebar">
+  <h1>Umut Akarsu</h1>
+  <p class="bio">I'm 18, I found a loophole and graduated early. I think I am at least an 8 on Ken Wilber.</p>
+
+  <nav>
+    <ul>
+      <li><a onclick="openSection('about')">About</a></li>
+      <li><a onclick="openSection('projects')">Projects</a></li>
+      <li><a onclick="openSection('research')">Research</a></li>
+      <li><a onclick="openSection('remember')">To Remember</a></li>
+      <li><a onclick="openSection('blog')">Blog</a></li>
+      <li><a onclick="openSection('questions')">Questions</a></li>
+      <li><a href="manifesto.html">Manifesto</a></li>
+      <li><a href="resume.html">Resume</a></li>
+    </ul>
+  </nav>
+
+  <div class="external-links">
+    <a href="https://www.linkedin.com/in/umuutakarsu" target="_blank">LinkedIn</a>
+    <a href="https://x.com/umut_akarsuu" target="_blank">Twitter</a>
+    <a href="https://soundcloud.com/umut-akarsu-216361045" target="_blank">SoundCloud</a>
+    <span>Email: contact@umutakarsu.com</span>
+  </div>
+</aside>
+
+<div class="content">
+  <div class="mobile-header">
+    <strong>Umut Akarsu</strong>
+    <button class="menu-button" onclick="toggleMenu()">Menu</button>
+  </div>
+
+  <section id="about" class="active">
+    <h2>About</h2>
+    <p>I'm 18. I'm deeply interested in languages, architecture, psychology, neuroscience, engineering, economics, finance, geopolitics, and sociology.</p>
+  </section>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <ul class="link-list">
+      <li><a href="mentors-table.html">Mentors Table</a></li>
+    </ul>
+  </section>
+
+  <section id="research">
+    <h2>Research</h2>
+    <ul class="link-list">
+      <li><a href="deepfake-research.html">DeepFake: When Utopia Meets Reality</a></li>
+      <li><a href="beyond-the-pill.html">Beyond the Pill: Closed-Loop Neural Implants for Emotional Modulation</a></li>
+    </ul>
+  </section>
+
+  <section id="remember">
+    <h2>To Remember</h2>
+    <ol class="advice-list">
+      <li>The only time you should look down on a person is if you are helping them up.</li>
+      <li>"Many people spend time studying the properties of animals or herbs; how much more important it would be to study those of people, with whom we must live or die!"</li>
+      <li>I hope all is well, but all is never well, I hope you are able to see the well and the ways to improve the "not well".</li>
+      <li>The Future is Yours to Create</li>
+      <li>Instead of crushing under disappointments, flourish with the upcoming opportunities.</li>
+      <li>Happiness and enjoyment are the combination of progress being made and contribution to something greater than yourself.</li>
+      <li>It's not where you come from, it's who you come as.</li>
+      <li>Give the world what you couldn't get from it.</li>
+    </ol>
+  </section>
+
+  <section id="blog">
+    <h2>Blog</h2>
+    <ul class="link-list">
+      <li><a href="istanbul-reflections.html">Istanbul Reflections</a></li>
+      <li><a href="my-people.html">My People</a></li>
+      <li><a href="the-normies.html">The Normies</a></li>
+      <li><a href="the-holy-twelve.html">The Holy Twelve</a></li>
+      <li><a href="how-i-hack-life.html">How I Hack Life</a></li>
+      <li><a href="curiosity-creates.html">Curiosity Creates</a></li>
+      <li><a href="cave-crowd-ubermensch.html">The Cave, the Crowd, and the Ubermensch</a></li>
+      <li><a href="resilience-high-school.html">I treated my last year of high school as a mental challenge to grow resilience.</a></li>
+    </ul>
+  </section>
+
+  <section id="questions">
+    <h2>Questions</h2>
+    <ul class="questions-list">
+      <li>Why do people want to be controlled?</li>
+      <li>Why aren't more people aware?</li>
+      <li>Where are the limits of human comprehension and how often do we mistake coherence for understanding?</li>
+      <li>If teleportation is conceived as the transfer of matter across space or time, how could continuity of consciousness and personal identity be preserved beyond mere physical reconstruction?</li>
+      <li>How do private intelligence organizations historically emerge, and what conditions make them viable outside state structures?</li>
+    </ul>
+  </section>
+</div>
+
+</main>
+
+<div id="mobileMenu" class="mobile-menu">
+  <div class="menu-header">
+    <h2>Menu</h2>
+    <button class="menu-button" onclick="toggleMenu()">Close</button>
+  </div>
+  <ul>
+    <li><a onclick="openSectionMobile('about')">About</a></li>
+    <li><a onclick="openSectionMobile('projects')">Projects</a></li>
+    <li><a onclick="openSectionMobile('research')">Research</a></li>
+    <li><a onclick="openSectionMobile('remember')">To Remember</a></li>
+    <li><a onclick="openSectionMobile('blog')">Blog</a></li>
+    <li><a onclick="openSectionMobile('questions')">Questions</a></li>
+    <li><a href="manifesto.html">Manifesto</a></li>
+    <li><a href="resume.html">Resume</a></li>
+  </ul>
+  <div class="external-links">
+    <a href="https://www.linkedin.com/in/umuutakarsu" target="_blank">LinkedIn</a>
+    <a href="https://x.com/umut_akarsuu" target="_blank">Twitter</a>
+    <a href="https://soundcloud.com/umut-akarsu-216361045" target="_blank">SoundCloud</a>
+    <span>Email: contact@umutakarsu.com</span>
+  </div>
+</div>
+
+<script>
+function openSection(id) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add("active");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function toggleMenu() {
+  document.getElementById("mobileMenu").classList.toggle("active");
+}
+
+function openSectionMobile(id) {
+  openSection(id);
+  toggleMenu();
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  if (!document.querySelector('section.active')) {
+    openSection('about');
+  }
+});
+</script>
+
+</body>
+</html>
