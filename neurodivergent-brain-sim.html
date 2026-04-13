@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Neurodivergent Brain Simulator — Umut Akarsu</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f5f5f5;
+  color: #1a1a1a;
+  line-height: 1.6;
+  margin: 0;
+  padding: 2rem;
+}
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.back {
+  display: inline-block;
+  color: #1a1a1a;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+.back:hover { text-decoration: underline; }
+h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin: 2rem 0 0.5rem 0;
+}
+p {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.action-btn {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.5rem;
+  background: #1a1a1a;
+  color: #f5f5f5;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+.action-btn:hover { background: #333; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="back">&larr; Back</a>
+  <h1>Neurodivergent Brain Simulator</h1>
+
+  <h2>What It Is</h2>
+  <p>This simulator models a neurodivergent brain in silico. It processes three sensory channels simultaneously — vision, hearing, and touch — and simulates two phenomena: ADHD attention dynamics and synesthetic sensory blending.</p>
+
+  <h2>ADHD</h2>
+  <p>The brain's ability to focus is governed by dopamine. As dopamine drops, noise corrupts the attention signal and focus scatters. When a strong stimulus arrives, dopamine spikes and the brain enters hyperfocus — locking onto a single target while filtering everything else. But this is unsustainable: dopamine decays, fatigue accumulates, and attention collapses again.</p>
+
+  <h2>Synesthesia</h2>
+  <p>In a typical brain, senses are processed independently and merged only at the end. This simulator introduces lateral connections between intermediate processing layers — a sound automatically triggers a color percept, a texture evokes an auditory sensation. Just like in real synesthetes.</p>
+
+  <h2>The Dashboard</h2>
+  <p>Users adjust dopamine levels, attention noise, synesthesia strength, and stimulus timing via the sidebar, then hit "Run Simulation." The dashboard displays the brain's internal state (dopamine, focus, fatigue), attention distribution across sensory channels, and cross-modal outputs generated from the fused representation — color from sound, waveforms from touch.</p>
+
+  <p>In short: ADHD attention dynamics + synesthetic sensory blending = a neurodivergent brain simulation.</p>
+
+  <a href="https://huggingface.co/spaces/umuutakarsu/neurodivergent-brain-sim" target="_blank" class="action-btn">Launch Simulator</a>
+</div>
+</body>
+</html>
