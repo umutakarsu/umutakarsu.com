@@ -16,15 +16,33 @@
 
 html { scroll-behavior: smooth; }
 
+html {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.06) 1px, transparent 0) 0 0/26px 26px,
+    linear-gradient(180deg, #fafafa 0%, #f2f2f2 50%, #fafafa 100%);
+  background-attachment: fixed;
+  min-height: 100%;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #ffffff;
+  background: transparent;
   color: #111;
   line-height: 1.65;
   max-width: 720px;
   margin: 0 auto;
   padding: 3.5rem 2rem 6rem;
   font-size: 0.95rem;
+}
+
+.profile-photo {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin-bottom: 2rem;
+  display: block;
+  filter: grayscale(1);
+  border-radius: 2px;
 }
 
 nav {
@@ -126,9 +144,12 @@ a:hover { opacity: 0.7; }
   <a href="#blog">blog</a>
 </nav>
 
+<img src="profile.jpg" alt="Umut Akarsu" class="profile-photo" />
+
 <h1 id="top">Umut Akarsu</h1>
 
-<p class="bio">I'm 18. I'm deeply interested in languages, architecture, psychology, neuroscience, engineering, economics, finance, geopolitics, and sociology. I think I am at least an 8 on Ken Wilber.</p>
+<p class="bio">I'm 18. I'm deeply interested in languages, architecture, psychology, neuroscience, engineering, economics, finance, geopolitics, and sociology.</p>
+<p class="bio">I think I am at least an 8 on Ken Wilber.</p>
 
 <section>
   <h2>about</h2>
