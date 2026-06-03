@@ -14,14 +14,13 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
-
 html {
   background:
     radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.06) 1px, transparent 0) 0 0/26px 26px,
     linear-gradient(180deg, #fafafa 0%, #f2f2f2 50%, #fafafa 100%);
   background-attachment: fixed;
   min-height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -31,7 +30,7 @@ body {
   line-height: 1.65;
   max-width: 720px;
   margin: 0 auto;
-  padding: 3.5rem 2rem 6rem;
+  padding: 3rem 2rem 6rem;
   font-size: 0.95rem;
 }
 
@@ -43,42 +42,22 @@ body {
   mix-blend-mode: multiply;
 }
 
-nav {
-  margin-bottom: 5rem;
-  display: flex;
-  gap: 2rem;
-}
-
-nav a {
-  color: #111;
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-
-nav a:hover { text-decoration: underline; }
-
 h1 {
   font-size: 1.9rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 3rem;
   letter-spacing: -0.01em;
 }
 
-.bio {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  margin-bottom: 4rem;
-  max-width: 560px;
-}
-
 section {
-  margin-bottom: 3.5rem;
+  margin-bottom: 2.5rem;
 }
 
 h2 {
   font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+  color: #111;
 }
 
 ul {
@@ -87,7 +66,7 @@ ul {
 }
 
 li {
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.4rem;
   line-height: 1.7;
 }
 
@@ -101,7 +80,7 @@ a:hover { opacity: 0.7; }
 .external {
   display: flex;
   gap: 1.8rem;
-  margin-top: 5rem;
+  margin-top: 4rem;
   padding-top: 2rem;
   flex-wrap: wrap;
   font-size: 0.9rem;
@@ -114,108 +93,55 @@ a:hover { opacity: 0.7; }
 .external a::before {
   content: "↗ ";
   color: #999;
-  text-decoration: none;
 }
 
 .external a:hover { text-decoration: underline; }
 
 .copyright {
-  margin-top: 3rem;
+  margin-top: 2.5rem;
   color: #999;
   font-size: 0.85rem;
 }
 
 @media (max-width: 600px) {
   body { padding: 2rem 1.5rem 4rem; font-size: 0.92rem; }
-  nav { margin-bottom: 3rem; gap: 1.5rem; }
-  section { margin-bottom: 2.8rem; }
-  .bio { margin-bottom: 3rem; }
-  .external { gap: 1.2rem; margin-top: 4rem; }
-  h1 { font-size: 1.6rem; }
+  section { margin-bottom: 2rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 2rem; }
+  .external { gap: 1.2rem; margin-top: 3rem; }
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="#top">home</a>
-  <a href="#blog">blog</a>
-</nav>
-
 <img src="banner.png" alt="Umut Akarsu" class="banner" />
 
-<h1 id="top">Umut Akarsu</h1>
-
-<p class="bio">I'm 18. I'm deeply interested in languages, architecture, psychology, neuroscience, engineering, economics, finance, geopolitics, and sociology.</p>
-<p class="bio">I think I am at least an 8 on Ken Wilber.</p>
+<h1>Umut Akarsu</h1>
 
 <section>
-  <h2>about</h2>
+  <h2>About</h2>
   <ul>
-    <li>Conducted a DeepFake research study with 259 participants at 15</li>
-    <li>Built a 7-person game dev team at 16</li>
-    <li>Opened and managed an office for the team at 16</li>
-    <li>Found a loophole in the Turkish high school system, completed 5 years in 3</li>
-    <li>Worked as Founders Associate at an EF-backed startup (Lucent) at 17</li>
-    <li>Published a story book in Germany at 17</li>
-    <li>Selected for Tech Europe — couldn't attend due to age</li>
-    <li>Entrepreneurs First told me to come back next year — they'll fund me then</li>
-    <li>Independent from my family since 17</li>
-    <li>Self-taught English and German</li>
-    <li>Currently exploring neuroscience and brain-computer interfaces as a long-term direction</li>
+    <li>Selected for Entrepreneurs First and Tech Europe at 17.</li>
+    <li>Found a loophole in the Turkish high school system, completed 5 years in 3.</li>
+    <li>Conducting independent research on neuroscience and brain-computer interfaces.</li>
+    <li>I think I am at least an 8 on Ken Wilber.</li>
+    <li>Exploring opportunities.</li>
   </ul>
 </section>
 
 <section>
-  <h2>projects</h2>
-  <p style="margin-bottom: 1rem;">I built things I wish existed and made them live.</p>
+  <h2>Lists</h2>
   <ul>
-    <li><a href="gradway">Gradway — Study abroad platform for Turkish students</a></li>
-    <li><a href="just-learn">Just Learn — Micro-learning app with swipeable AI cards</a></li>
-    <li><a href="countdown">Countdown — Simple countdown app for dates and goals</a></li>
-    <li><a href="code-startups">CODE University Startups — A list of startups from CODE Berlin</a></li>
-    <li><a href="mentors-table">Mentors Table</a></li>
-    <li><a href="artificial-synesthesia">Artificial Synesthesia Simulator</a></li>
-    <li><a href="neurodivergent-brain-sim">Neurodivergent Brain Simulator</a></li>
+    <li><a href="interests">Interests</a></li>
+    <li><a href="questions">Questions</a></li>
+    <li><a href="things-to-remember">Things to Remember</a></li>
+    <li><a href="principles">Principles</a></li>
+    <li><a href="projects">Projects</a></li>
+    <li><a href="research">Research</a></li>
   </ul>
 </section>
 
 <section>
-  <h2>research</h2>
-  <ul>
-    <li><a href="deepfake-research">DeepFake: When Utopia Meets Reality</a></li>
-    <li><a href="beyond-the-pill">Beyond the Pill: Closed-Loop Neural Implants for Emotional Modulation</a></li>
-  </ul>
-</section>
-
-<section>
-  <h2>things to remember</h2>
-  <ul>
-    <li>The only time you should look down on a person is if you are helping them up.</li>
-    <li>"Many people spend time studying the properties of animals or herbs; how much more important it would be to study those of people, with whom we must live or die!"</li>
-    <li>I hope all is well, but all is never well, I hope you are able to see the well and the ways to improve the "not well".</li>
-    <li>The Future is Yours to Create.</li>
-    <li>Instead of crushing under disappointments, flourish with the upcoming opportunities.</li>
-    <li>Happiness and enjoyment are the combination of progress being made and contribution to something greater than yourself.</li>
-    <li>It's not where you come from, it's who you come as.</li>
-    <li>Give the world what you couldn't get from it.</li>
-  </ul>
-</section>
-
-<section>
-  <h2>questions</h2>
-  <ul>
-    <li>Why do people want to be controlled?</li>
-    <li>Why aren't more people aware?</li>
-    <li>Where are the limits of human comprehension and how often do we mistake coherence for understanding?</li>
-    <li>If teleportation is conceived as the transfer of matter across space or time, how could continuity of consciousness and personal identity be preserved beyond mere physical reconstruction?</li>
-    <li>How do private intelligence organizations historically emerge, and what conditions make them viable outside state structures?</li>
-    <li>When and how are we gonna evolve?</li>
-  </ul>
-</section>
-
-<section id="blog">
-  <h2>blog</h2>
+  <h2>Essays</h2>
   <ul>
     <li><a href="cognitive-scaling-law">The Cognitive Scaling Law: Why My Generation Is "Hyper-Aware"</a></li>
     <li><a href="istanbul-reflections">Istanbul Reflections</a></li>
@@ -229,15 +155,8 @@ a:hover { opacity: 0.7; }
   </ul>
 </section>
 
-<section>
-  <h2>elsewhere</h2>
-  <ul>
-    <li><a href="manifesto">Manifesto</a></li>
-    <li><a href="resume">Resume</a></li>
-  </ul>
-</section>
-
 <div class="external">
+  <a href="resume">resume</a>
   <a href="https://www.linkedin.com/in/umuutakarsu" target="_blank">linkedin</a>
   <a href="https://x.com/umut_akarsuu" target="_blank">twitter</a>
   <a href="https://github.com/umutakarsu" target="_blank">github</a>
