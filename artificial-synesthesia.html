@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Artificial Synesthesia Simulator — Umut Akarsu</title>
+<title>SynapseFlow — Umut Akarsu</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -14,35 +14,28 @@ body {
   margin: 0;
   padding: 2rem;
 }
-.container {
-  max-width: 680px;
-  margin: 0 auto;
-}
-.back {
-  display: inline-block;
-  color: #1a1a1a;
-  text-decoration: none;
-  font-size: 0.9rem;
-  margin-bottom: 2rem;
-}
+.container { max-width: 760px; margin: 0 auto; }
+.back { display: inline-block; color: #1a1a1a; text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; }
 .back:hover { text-decoration: underline; }
-h1 {
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-}
+h1 { font-size: 1.7rem; font-weight: 700; margin-bottom: 0.5rem; }
+.subtitle { font-size: 1rem; color: #4a4a4a; margin-bottom: 2rem; }
 h2 {
   font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: #888;
   margin: 2rem 0 0.5rem 0;
 }
-p {
+p { margin-bottom: 1rem; font-size: 0.95rem; line-height: 1.7; }
+dl.spec {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0.5rem 1.2rem;
   margin-bottom: 1rem;
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: 0.93rem;
 }
+dl.spec dt { font-weight: 600; color: #555; }
+dl.spec dd { color: #1a1a1a; }
 .action-btn {
   display: inline-block;
   margin-top: 1.5rem;
@@ -54,20 +47,35 @@ p {
   border-radius: 4px;
 }
 .action-btn:hover { background: #333; }
+a { color: #1a1a1a; text-decoration: underline; }
+a:hover { opacity: 0.7; }
 </style>
 </head>
 <body>
 <div class="container">
   <a href="/" class="back">&larr; Back</a>
-  <h1>Artificial Synesthesia Simulator</h1>
+
+  <h1>SynapseFlow</h1>
+  <p class="subtitle">Artificial Synesthesia Simulator</p>
+
+  <h2>Specs</h2>
+  <dl class="spec">
+    <dt>Status</dt><dd>Live public demo</dd>
+    <dt>Stack</dt><dd>Python · NumPy · Plotly · Streamlit</dd>
+  </dl>
 
   <h2>What It Is</h2>
-  <p>A simulation of artificial synesthesia — a brain implant that lets you see sounds as colors. The chip picks up audio, breaks it into frequency bands, converts each band to a color (bass to red, mid to green, treble to blue), and stimulates visual cortex electrodes so the brain perceives those colors.</p>
+  <p>An interactive Streamlit dashboard simulating how a brain implant could convert audio into visual cortex color perception, with a 14-day neuroplasticity onboarding schedule.</p>
+
+  <p>The chip picks up audio, breaks it into frequency bands, converts each band to a color (bass to red, mid to green, treble to blue), and stimulates visual cortex electrodes so the brain perceives those colors.</p>
 
   <h2>How It Works</h2>
   <p>The dashboard lets you watch each step of the process: audio input is captured, decomposed into frequency bands, mapped to a color space, and then delivered as electrical stimulation patterns to the visual cortex. You can observe the entire pipeline from sound wave to perceived color in real time.</p>
 
-  <a href="https://brainnn-x4kgvajata4pl2awzyyypn.streamlit.app" target="_blank" class="action-btn">Launch Simulator</a>
+  <a href="https://ic-lem-simulation-z2wd37web5fznupprvhevb.streamlit.app" target="_blank" class="action-btn">Launch Simulator</a>
+
+  <h2>Code</h2>
+  <p><a href="https://github.com/umutakarsu/ic-lem-simulation" target="_blank">github.com/umutakarsu/ic-lem-simulation</a></p>
 </div>
 </body>
 </html>

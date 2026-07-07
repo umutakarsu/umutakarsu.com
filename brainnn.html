@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>brainnn — Umut Akarsu</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f5f5f5;
+  color: #1a1a1a;
+  line-height: 1.6;
+  margin: 0;
+  padding: 2rem;
+}
+.container { max-width: 760px; margin: 0 auto; }
+.back { display: inline-block; color: #1a1a1a; text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; }
+.back:hover { text-decoration: underline; }
+h1 { font-size: 1.7rem; font-weight: 700; margin-bottom: 0.5rem; }
+.subtitle { font-size: 1rem; color: #4a4a4a; margin-bottom: 2rem; }
+h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  margin: 2rem 0 0.5rem 0;
+}
+p { margin-bottom: 1rem; font-size: 0.95rem; line-height: 1.7; }
+img.hero {
+  width: 100%;
+  height: auto;
+  margin: 2rem 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fff;
+}
+dl.spec {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0.5rem 1.2rem;
+  margin-bottom: 1rem;
+  font-size: 0.93rem;
+}
+dl.spec dt { font-weight: 600; color: #555; }
+dl.spec dd { color: #1a1a1a; }
+ul.links { list-style: disc; padding-left: 1.4rem; margin-top: 0.5rem; }
+ul.links li { margin-bottom: 0.4rem; font-size: 0.93rem; word-break: break-word; }
+a { color: #1a1a1a; text-decoration: underline; }
+a:hover { opacity: 0.7; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="back">&larr; Back</a>
+
+  <h1>brainnn</h1>
+  <p class="subtitle">Neuromodulator-Conditioned BCI Decoding</p>
+
+  <img src="https://raw.githubusercontent.com/umutakarsu/brainnn/main/docs/img/loso_results.png" alt="LOSO results" class="hero" />
+
+  <h2>Specs</h2>
+  <dl class="spec">
+    <dt>Status</dt><dd>Research prototype (July 2026, active)</dd>
+    <dt>Role</dt><dd>Solo — architecture, implementation, evaluation, communication</dd>
+    <dt>Result</dt><dd>40% zero-shot cross-subject accuracy on BNCI2014_001 (4-class motor imagery, chance = 25%)</dd>
+    <dt>Stack</dt><dd>Python · PyTorch · MNE · MOABB · Streamlit · Plotly</dd>
+    <dt>Novelty</dt><dd>Independent literature review confirmed no prior work conditions a BCI decoder on a 3-D neuromodulator estimate</dd>
+    <dt>Review</dt><dd>Architecture personally reviewed by Peter Dayan (MPI Tübingen)</dd>
+  </dl>
+
+  <h2>Attention Map</h2>
+  <img src="https://raw.githubusercontent.com/umutakarsu/brainnn/main/docs/img/attention_map.png" alt="Attention map" class="hero" />
+
+  <h2>Focused vs Tired</h2>
+  <img src="https://raw.githubusercontent.com/umutakarsu/brainnn/main/docs/img/focused_vs_tired.png" alt="Focused vs tired comparison" class="hero" />
+
+  <h2>Links</h2>
+  <ul class="links">
+    <li><a href="https://github.com/umutakarsu/brainnn" target="_blank">Repo</a></li>
+    <li><a href="https://github.com/umutakarsu/brainnn#readme" target="_blank">README</a></li>
+    <li><a href="https://github.com/umutakarsu/brainnn/blob/main/docs/grant_brief.md" target="_blank">Grant brief</a></li>
+    <li><a href="https://github.com/umutakarsu/brainnn/blob/main/neuromod_bci_synthesis.md" target="_blank">Literature review</a></li>
+    <li><a href="https://github.com/umutakarsu/brainnn/blob/main/checkpoints/loso_results.json" target="_blank">LOSO results (JSON)</a></li>
+    <li><a href="https://github.com/umutakarsu/brainnn/commit/4ee2ba4" target="_blank">Peter Dayan review commit</a></li>
+  </ul>
+</div>
+</body>
+</html>
