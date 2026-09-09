@@ -140,6 +140,12 @@
         padding: 20px 16px 28px;
       }
     }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .page { border-radius: 0; padding: 0 8px; max-width: none; }
+      .back-link { display: none; }
+      a { text-decoration: none; }
+    }
   </style>
 </head>
 <body>
