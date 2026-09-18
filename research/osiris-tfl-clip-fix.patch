@@ -1,0 +1,244 @@
+diff --git a/src/app/api/cctv/route.test.ts b/src/app/api/cctv/route.test.ts
+index 3094865..c7e547e 100644
+--- a/src/app/api/cctv/route.test.ts
++++ b/src/app/api/cctv/route.test.ts
+@@ -107,3 +107,49 @@ describe('CCTV partial responses', () => {
+     expect((await response.json()).pendingRegions).toEqual(['uk']);
+   });
+ });
++
++/* TfL publishes a still and a ~10s clip per camera, rewritten together every
++   few minutes. The shape below is the live /Place/Type/JamCam record: every
++   property value is a string, including `available`. */
++describe('TfL JamCams', () => {
++  const S3 = 'https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk';
++  const jamCam = (id: string, props: Record<string, string>) => ({
++    id, lat: 51.5, lon: -0.1, commonName: 'London',
++    additionalProperties: Object.entries(props).map(([key, value]) => ({ category: 'payload', key, value })),
++  });
++  const uk = async () => (await (await GET(new Request('http://localhost/api/cctv?region=uk'))).json()).cameras;
++
++  it('plays the clip and keeps the still for the poster, tiles and fallback', async () => {
++    vi.mocked(stealthFetch).mockResolvedValue(Response.json([
++      jamCam('JamCams_00001.07450', {
++        available: 'true', imageUrl: `${S3}/00001.07450.jpg`, videoUrl: `${S3}/00001.07450.mp4`, view: 'Piccadilly Circus',
++      }),
++    ]));
++    expect(await uk()).toEqual([expect.objectContaining({
++      id: 'tfl-JamCams_00001.07450',
++      feed_url: `${S3}/00001.07450.jpg`,
++      stream_url: `${S3}/00001.07450.mp4`,
++      stream_type: 'mp4',
++      source: 'TfL',
++    })]);
++  });
++
++  it('derives both URLs from the id when the record carries no properties', async () => {
++    vi.mocked(stealthFetch).mockResolvedValue(Response.json([
++      { id: 'JamCams_00001.07450', lat: 51.5, lon: -0.1, commonName: 'London' },
++    ]));
++    expect(await uk()).toEqual([expect.objectContaining({
++      feed_url: `${S3}/00001.07450.jpg`, stream_url: `${S3}/00001.07450.mp4`, stream_type: 'mp4',
++    })]);
++  });
++
++  /* An unavailable camera's files are a placeholder frame and a one-second
++     placeholder clip: a picture of nothing, under a camera's name. */
++  it('leaves out a camera TfL marks unavailable', async () => {
++    vi.mocked(stealthFetch).mockResolvedValue(Response.json([
++      jamCam('JamCams_1', { available: 'false', imageUrl: `${S3}/1.jpg`, videoUrl: `${S3}/1.mp4` }),
++      jamCam('JamCams_2', { available: 'true', imageUrl: `${S3}/2.jpg`, videoUrl: `${S3}/2.mp4` }),
++    ]));
++    expect((await uk()).map((c: { id: string }) => c.id)).toEqual(['tfl-JamCams_2']);
++  });
++});
+diff --git a/src/app/api/cctv/route.ts b/src/app/api/cctv/route.ts
+index 3d4afa1..60577b2 100644
+--- a/src/app/api/cctv/route.ts
++++ b/src/app/api/cctv/route.ts
+@@ -63,13 +63,24 @@ async function fetchTfLCameras(): Promise<any[]> {
+     const res = await stealthFetch('https://api.tfl.gov.uk/Place/Type/JamCam', { signal: AbortSignal.timeout(12000) });
+     if (!res.ok) return [];
+     const data = await res.json();
+-    return (data || []).map((cam: any) => {
+-      const imgProp = cam.additionalProperties?.find((p: any) => p.key === 'imageUrl');
++    const prop = (cam: any, key: string) => cam.additionalProperties?.find((p: any) => p.key === key)?.value;
++    /* TfL rewrites each camera's still and its ~10s clip together, every few
++       minutes; nothing here is live. Re-requesting the still faster than that
++       only downloads the same frame again, which is what read as "frozen".
++       The clip at least shows motion, so it is what plays; the still stays
++       the poster, the fallback, and the RAW FEED link. `available` is "false"
++       for roughly one camera in eight, which then serves a placeholder rather
++       than a picture — those are left out, at the cost of the catalogue's
++       30-minute lag when one comes back. */
++    return (data || []).filter((cam: any) => prop(cam, 'available') !== 'false').map((cam: any) => {
+       const camId = cam.id?.replace('JamCams_', '') || '';
++      const base = `https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/${camId}`;
+       return {
+         id: `tfl-${cam.id}`, lat: cam.lat, lng: cam.lon,
+         name: cam.commonName || 'London JamCam', city: 'London', country: 'UK',
+-        feed_url: imgProp?.value || `https://s3-eu-west-1.amazonaws.com/jamcams.tfl.gov.uk/${camId}.jpg`,
++        feed_url: prop(cam, 'imageUrl') || `${base}.jpg`,
++        stream_url: prop(cam, 'videoUrl') || `${base}.mp4`,
++        stream_type: 'mp4',
+         source: 'TfL',
+       };
+     }).filter((c: any) => c.lat && c.lng);
+diff --git a/src/app/api/cctv/types.ts b/src/app/api/cctv/types.ts
+index 72adfa8..d3b25a8 100644
+--- a/src/app/api/cctv/types.ts
++++ b/src/app/api/cctv/types.ts
+@@ -1,4 +1,4 @@
+-export type CctvStreamType = 'jpg' | 'hls' | 'iframe' | 'mjpeg';
++export type CctvStreamType = 'jpg' | 'hls' | 'iframe' | 'mjpeg' | 'mp4';
+ 
+ export interface CctvCamera {
+   id: string;
+@@ -9,7 +9,7 @@ export interface CctvCamera {
+   country: string;
+   /** Static image URL (MJPEG/JPG snapshot) */
+   feed_url?: string;
+-  /** Live video stream (HLS .m3u8) or embed URL (YouTube/rtsp.me) */
++  /** Live video stream (HLS .m3u8), a short MP4 clip, or embed URL (YouTube/rtsp.me) */
+   stream_url?: string;
+   stream_type?: CctvStreamType;
+   external_url?: string;
+diff --git a/src/components/CameraViewer.tsx b/src/components/CameraViewer.tsx
+index fe04f68..3b7922b 100644
+--- a/src/components/CameraViewer.tsx
++++ b/src/components/CameraViewer.tsx
+@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
+ import { X, ExternalLink, RefreshCw, MapPin, Camera, CameraOff, Maximize2, PlayCircle } from 'lucide-react';
+ import Hls from 'hls.js';
+ import { isHostedOffPlatform, liveFeedAtSource, localEmbed, needsResolution, offPlatformView } from '@/lib/camera-feed';
++import { freshen, refreshInterval } from '@/lib/camera-preview';
+ 
+ interface CameraViewerProps {
+   camera: any | null;
+@@ -19,6 +20,11 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
+   const [retryCount, setRetryCount] = useState(0);
+   const [fullscreen, setFullscreen] = useState(false);
+   const [currentTime, setCurrentTime] = useState<string>('');
++  /* An MP4 clip is a few seconds the source rewrites every few minutes, so it
++     is re-pointed on the tiles' cadence; the still is its poster, and the way
++     back if the clip will not play. Keyed by URL so switching cameras resets. */
++  const [clipBust, setClipBust] = useState(0);
++  const [clipFailedFor, setClipFailedFor] = useState<string | null>(null);
+ 
+   useEffect(() => {
+     const iv = setInterval(() => {
+@@ -78,7 +84,8 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
+     return () => { live = false; };
+   }, [resolveKey]);
+ 
+-  const streamType = resolvedEmbed ? 'iframe' : (camera?.stream_type || 'jpg');
++  const clipUnplayable = Boolean(clipFailedFor) && clipFailedFor === camera?.stream_url && Boolean(camera?.feed_url);
++  const streamType = resolvedEmbed ? 'iframe' : clipUnplayable ? 'jpg' : (camera?.stream_type || 'jpg');
+   const streamUrl: string | undefined = resolvedEmbed || camera?.stream_url;
+   const view = offPlatformView({ hostedOffPlatform, resolving, resolvedEmbed, offline });
+   const externalOnly = view !== 'inline';
+@@ -157,6 +164,13 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
+     return () => clearInterval(iv);
+   }, [camera, streamType]);
+ 
++  // Re-point a clip on the tiles' cadence: the source rewrites it every few minutes.
++  useEffect(() => {
++    if (streamType !== 'mp4' || !camera?.stream_url) return;
++    const iv = setInterval(() => setClipBust(n => n + 1), refreshInterval('mp4'));
++    return () => clearInterval(iv);
++  }, [camera, streamType]);
++
+   if (!camera) return null;
+ 
+   return (
+@@ -204,7 +218,7 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
+                   </div>
+                   <div className="min-w-0 flex-1">
+                     <h3 className="text-[11px] md:text-[12px] font-mono font-bold tracking-widest truncate text-white uppercase" style={{ textShadow: '0 0 10px rgba(255,255,255,0.3)' }}>{camera.name}</h3>
+-                    <p className="text-[9px] md:text-[9px] font-mono text-[var(--gold-primary)] uppercase tracking-wider opacity-80">{camera.city}, {camera.country} • SOURCE: {camera.source}</p>
++                    <p className="text-[9px] md:text-[9px] font-mono text-[var(--gold-primary)] uppercase tracking-wider opacity-80">{camera.city}, {camera.country} • SOURCE: {camera.source}{camera.source === 'TfL' && ' • Powered by TfL Open Data'}</p>
+                   </div>
+                 </div>
+                 
+@@ -315,12 +329,15 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
+               />
+             ) : streamType === 'mp4' && camera.stream_url ? (
+               <video
+-                src={camera.stream_url}
++                key={clipBust}
++                src={clipBust ? freshen(camera.stream_url) : camera.stream_url}
++                poster={camera.feed_url}
+                 className={`w-full h-full ${fullscreen ? 'object-contain' : 'object-cover'}`}
+                 autoPlay
+                 muted
+                 playsInline
+                 loop
++                onError={() => setClipFailedFor(camera.stream_url)}
+               />
+             ) : streamType === 'iframe' && streamUrl ? (
+               <iframe
+@@ -342,9 +359,10 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
+             {/* Live indicator */}
+             {!error && !loading && !externalOnly && (
+               <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/80 border border-[var(--gold-primary)]/50 px-2 py-1 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+-                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]" />
++                {/* A clip is rewritten at the source every few minutes: motion, but not live. */}
++                <div className={streamType === 'mp4' ? 'w-1.5 h-1.5 bg-[var(--gold-primary)]' : 'w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]'} />
+                 <span className="text-[9px] font-mono text-white tracking-[0.2em]">
+-                  {watchLiveUrl ? 'SNAPSHOT' : streamType === 'jpg' ? 'LIVE SAT-LINK' : 'LIVE FEED'}
++                  {watchLiveUrl ? 'SNAPSHOT' : streamType === 'mp4' ? 'CLIP · REFRESHED EVERY FEW MIN' : streamType === 'jpg' ? 'LIVE SAT-LINK' : 'LIVE FEED'}
+                 </span>
+               </div>
+             )}
+@@ -379,14 +397,14 @@ export default function CameraViewer({ camera, onClose, onLocate }: CameraViewer
+                 <div className="flex flex-col">
+                   <span className="text-[9px] text-[var(--text-muted)] font-mono tracking-widest">FEED TYPE</span>
+                   <span className="text-[9px] text-white font-mono tracking-widest uppercase">
+-                    {view === 'offline' ? (gone ? 'WITHDRAWN' : 'OFFLINE') : watchLiveUrl ? 'SNAPSHOT' : externalOnly ? 'EXTERNAL' : resolvedEmbed ? 'YOUTUBE LIVE' : streamType}
++                    {view === 'offline' ? (gone ? 'WITHDRAWN' : 'OFFLINE') : watchLiveUrl ? 'SNAPSHOT' : externalOnly ? 'EXTERNAL' : resolvedEmbed ? 'YOUTUBE LIVE' : streamType === 'mp4' ? 'CLIP' : streamType}
+                   </span>
+                 </div>
+                 <div className="flex flex-col border-l border-white/10 pl-4">
+                   <span className="text-[9px] text-[var(--text-muted)] font-mono tracking-widest">STATUS</span>
+                   {/* Nothing is being received locally for an external feed — don't claim otherwise. */}
+-                  <span className={`text-[9px] font-mono tracking-widest ${externalOnly ? 'text-[var(--gold-primary)]' : 'text-[var(--alert-green)]'}`}>
+-                    {view === 'offline' ? (gone ? 'REMOVED BY SOURCE' : 'OFF AIR AT SOURCE') : watchLiveUrl ? 'LIVE VIDEO AT SOURCE' : externalOnly ? 'HOSTED OFF-PLATFORM' : 'ACTIVE / RECORDING'}
++                  <span className={`text-[9px] font-mono tracking-widest ${externalOnly || streamType === 'mp4' ? 'text-[var(--gold-primary)]' : 'text-[var(--alert-green)]'}`}>
++                    {view === 'offline' ? (gone ? 'REMOVED BY SOURCE' : 'OFF AIR AT SOURCE') : watchLiveUrl ? 'LIVE VIDEO AT SOURCE' : externalOnly ? 'HOSTED OFF-PLATFORM' : streamType === 'mp4' ? 'PERIODIC CLIP AT SOURCE' : 'ACTIVE / RECORDING'}
+                   </span>
+                 </div>
+               </div>
+diff --git a/src/components/CctvPreviews.tsx b/src/components/CctvPreviews.tsx
+index db087a7..8514d4f 100644
+--- a/src/components/CctvPreviews.tsx
++++ b/src/components/CctvPreviews.tsx
+@@ -242,9 +242,12 @@ function Tile({ cam: camera, onOpen }: { cam: PreviewCamera; onOpen: (cam: Previ
+           />
+         ))}
+ 
++        {/* A clip loops a few seconds the source rewrote minutes ago; only a stream is live. */}
+         <div className="pointer-events-none absolute left-1.5 top-1.5 flex items-center gap-1 bg-black/70 px-1 py-[1px]">
+-          <span className="h-1 w-1 rounded-full bg-[var(--alert-red)] animate-pulse" />
+-          <span className="font-mono text-[7px] tracking-[0.18em] text-white/75">LIVE</span>
++          {camera.media.kind === 'mp4'
++            ? <span className="h-1 w-1 bg-[var(--gold-primary)]" />
++            : <span className="h-1 w-1 rounded-full bg-[var(--alert-red)] animate-pulse" />}
++          <span className="font-mono text-[7px] tracking-[0.18em] text-white/75">{camera.media.kind === 'mp4' ? 'CLIP' : 'LIVE'}</span>
+         </div>
+ 
+         {/* Hover only: the tile is already a button, this says what it opens. */}
+diff --git a/src/lib/cctv-snapshot.ts b/src/lib/cctv-snapshot.ts
+index 4675dba..eef428f 100644
+--- a/src/lib/cctv-snapshot.ts
++++ b/src/lib/cctv-snapshot.ts
+@@ -24,7 +24,9 @@ import { dirname, join } from 'node:path';
+ export type Camera = Record<string, unknown>;
+ export type RegionCameras = Record<string, Camera[]>;
+ 
+-const SNAPSHOT_VERSION = 1;
++// 2: TfL records carry stream_url/stream_type; a v1 catalogue would keep
++//    serving the still-only shape for its whole 30-minute TTL after a boot.
++const SNAPSHOT_VERSION = 2;
+ 
+ /** Overridable so a test never writes into the real cache directory. */
+ export const snapshotPath = () =>

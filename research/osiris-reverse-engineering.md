@@ -210,3 +210,35 @@ npm run dev          # http://localhost:3000, no keys needed
 With `AIS_API_KEY` (free aisstream.io key) you get live ships; with `CLOUDFLARE_API_TOKEN` (Radar read) the two NETINTEL layers appear; with `SDK_INGEST_KEY` you can `POST /api/sdk/ingest` your own entities and watch them via `GET /api/sdk/stream`. `docker compose up -d` brings up the same three-container stack the public site runs, minus Umami and Cloudflare.
 
 If the goal is to build something similar rather than run this: the reusable ideas are (1) one Next route per upstream with a shared source cache and stale-on-error, (2) pre-serialised snapshots on any route that aggregates in-memory state, (3) MapLibre with all sources registered up front and layers toggled by `setData`, and (4) DOM overlay tiles positioned on `move` for anything that needs `<img>`/`<video>`/iframes over the map.
+
+---
+
+## 9. Addendum (2026-09-18): how "live" the cameras are, Turkey vs UK, and a validated fix
+
+Prompted by a user observation: Turkish cameras played smoothly, English ones looked frozen. Verified by two adversarial agent rounds (three skeptics; the core explanation survived, two sub-claims were corrected and are stated correctly below).
+
+**Two things are called "live".** Camera *positions* are a catalogue (30 min source cache, persisted gzipped snapshot, background refresh). Camera *frames* never pass through OSIRIS except for the MJPEG frame proxy, the Indonesian HLS proxy and the TxDOT base64 decoder; the visitor's browser fetches them from the operator directly. What you see is exactly as live as the operator's publication.
+
+**Turkey.** `turkey.ts` is an empty stub; its 13 Windy.com iframes (labelled "IBB Istanbul") were removed on 2026-06-12 because Windy blocks framing. Turkish cameras on the map come from two aggregators: primarily OpenCCTV's "westasia" sample (bounding box lat 5–56, lng 25–92, capped at 600 by stride sampling), which republishes İBB traffic cameras. opencctv.org lists 628 Türkiye cameras, 389 of them HLS. OSIRIS plays those with hls.js straight from the operator, no proxy, so they are true continuous video. Secondarily, 7 SkylineWebcams entries (Bulancak, Erbaa, Giresun, Istanbul Golden Horn, three near Bursa/Nilüfer). Since PR #293 a Skyline page that wraps a YouTube livestream is resolved server-side and embedded; a page that uses Skyline's own HLS is deliberately left as an external link (the resolver marks it non-embeddable). The three Nilüfer entries are proxied JPEG posters labelled SNAPSHOT.
+
+**UK.** The only UK source is TfL JamCams (~890 cameras, `fetchTfLCameras`). TfL publishes no video: for each camera it writes one 352×288 JPEG and one ~10.6 s H.264 MP4 clip to a public S3 bucket, from the same capture, and rewrites both every few minutes. Measured this session from the bucket listing:
+
+| Frame age at listing time | minutes |
+|---|---|
+| p10 / p25 | 1.8 / 2.5 |
+| p50 | 6.9 |
+| p90 / p95 | 12.3 / 15.6 |
+| p99 / max | 23.1 / 23.3 |
+
+OSIRIS keeps only `imageUrl`, discards `videoUrl` and the `available` flag, sets no `stream_type`, and re-requests the JPEG every 5 s in the viewer and every 15 s in the map tiles with a cache-buster. Roughly 99 % of those requests return byte-identical frames, under a pulsing "LIVE SAT-LINK" badge. About 12 % of cameras (112/890 that day) are `available: false` and serve a placeholder JPEG plus a 1-second placeholder MP4 at the same URLs, with unique ETags, so they cannot be detected by hash. The feed was dark from the September 2024 TfL cyber incident until late January 2026. The bucket also carries an undocumented `data.json` manifest, regenerated every 60 s with per-camera `available` and `created` (capture time), which is a better freshness signal than the Unified API's `modified` field (database metadata, identical across all properties). S3 objects have ETag/Last-Modified conditional-GET support, no Cache-Control, and CORS `*` on GET only.
+
+So the difference is upstream media type, not OSIRIS's fetch code and not geography: Istanbul's operator publishes video, London's publishes a still every 5–8 minutes.
+
+**Fix, evaluated.** Four independent designs (motion-first clip, honesty-first labels and change detection, coverage-first extra London livestreams, a per-source cadence model) were scored by three judges. All three ranked the motion-first change highest (22, 22, 20 of 25), with honest labels and the one-line `available` filter folded in, and rejected the new-endpoint, new-field and curated-livestream designs as either not fixing what the user sees or adding infrastructure for one source. The winning change was implemented on a scratch copy of upstream master (`d806a2d`) and validated: 6 files, +96/−16, `npx vitest run` 125 passed (+3 new TfL tests, baseline 122), `npx tsc --noEmit` clean, `git apply --check` clean against the pristine clone. It is saved as `research/osiris-tfl-clip-fix.patch`:
+
+1. `fetchTfLCameras`: read `videoUrl` as `stream_url` with `stream_type: 'mp4'`, keep the JPEG as `feed_url` (poster, fallback, RAW FEED link), skip records whose `available` is `"false"`.
+2. `CctvStreamType` gains `'mp4'`; `SNAPSHOT_VERSION` 1 → 2 so a restored still-only catalogue is discarded at boot.
+3. `CameraViewer`: the MP4 branch gets `poster`, an `onError` fallback to the JPEG path for that camera, and a 60 s cache-busted re-point (same cadence the tiles already use for Quebec 511 clips); the badge becomes a steady gold square reading "CLIP · REFRESHED EVERY FEW MIN", FEED TYPE "CLIP", STATUS "PERIODIC CLIP AT SOURCE" instead of green "ACTIVE / RECORDING"; "Powered by TfL Open Data" is appended to the source line (licence wording documented, not verified from here).
+4. `CctvPreviews` tiles: "CLIP" without the pulse for MP4 media. This also correctly relabels the 675 Quebec 511 clips.
+
+Known trade-offs: an all-TfL London viewport shows at most 4 video tiles instead of 8 stills (`MAX_VIDEO_TILES`), a camera returning from `available: false` is invisible for up to the 30 min catalogue TTL, and the clip is still 0–23 min old; a frame-age indicator, if wanted later, should come from the S3 `data.json` manifest server-side rather than per-camera probes. Not verified: playback in a real browser. A pre-existing bug noticed in passing: `writeSnapshot` lacks the `'off'` guard `readSnapshot` has, so tests write a stray file named `off`.
