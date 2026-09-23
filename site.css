@@ -1,0 +1,55 @@
+/* site.css — shared polish layer, loaded after each page's inline styles.
+   Keeps every page's structure; changes only type, color and small details. */
+
+html {
+  background: #f6f4ef; /* warm off-white, no pattern */
+}
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1c1b19;
+  background: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
+}
+h1 {
+  font-family: "Newsreader", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: #141311;
+}
+h2 {
+  letter-spacing: -0.005em;
+  color: #141311;
+}
+p, li {
+  color: #26241f;
+}
+li::marker {
+  color: #a49d92;
+}
+a {
+  color: #141311;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(20, 19, 17, 0.35);
+  transition: text-decoration-color 120ms ease, opacity 120ms ease;
+}
+a:hover {
+  opacity: 1;
+  text-decoration-color: currentColor;
+}
+blockquote {
+  border-left: 2px solid #d9d3c8;
+  padding-left: 1rem;
+  color: #3a3731;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.05em;
+}
+::selection {
+  background: #e7e0d2;
+}
+.copyright {
+  color: #a49d92;
+}
