@@ -22,6 +22,28 @@ h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: 0.5rem; }
 ul { list-style: disc; padding-left: 1.4rem; }
 li { margin-bottom: 0.8rem; line-height: 1.7; font-size: 0.95rem; }
 a { color: #1a1a1a; }
+
+        /* under construction: blur the essay, float a live notice */
+        .container.uc { filter: blur(7px); pointer-events: none; user-select: none; opacity: 0.75; }
+        #uc {
+            position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem; z-index: 20;
+        }
+        #uc .card {
+            background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 14px; padding: 1.6rem 1.8rem; max-width: 380px; width: 100%;
+            text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        #uc .live { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: #555; margin-bottom: 0.8rem; }
+        #uc .dot { width: 8px; height: 8px; border-radius: 50%; background: #e0362c; animation: ucpulse 1.4s ease-in-out infinite; }
+        @keyframes ucpulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: 0.35; transform: scale(0.8);} }
+        #uc h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.35rem; }
+        #uc p { font-size: 0.85rem; color: #555; margin-bottom: 1.1rem; }
+        #uc .clocks { display: flex; justify-content: center; gap: 1.6rem; font-variant-numeric: tabular-nums; }
+        #uc .clock small { display: block; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: #777; margin-bottom: 0.15rem; }
+        #uc .clock span { font-size: 1.25rem; font-weight: 600; }
+        #uc a { color: #1a1a1a; font-size: 0.8rem; }
+        @media (prefers-reduced-motion: reduce) { #uc .dot { animation: none; } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +51,19 @@ a { color: #1a1a1a; }
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
-<div class="container">
+<div id="uc" role="status" aria-live="polite">
+  <div class="card">
+    <div class="live"><span class="dot"></span> live</div>
+    <h2>This site is being reconstructed</h2>
+    <p>Live, right now.</p>
+    <div class="clocks">
+      <div class="clock"><small>Turkey</small><span id="clockTR">--:--:--</span></div>
+      <div class="clock"><small>San Francisco</small><span id="clockSF">--:--:--</span></div>
+    </div>
+    <p style="margin:1rem 0 0"><a href="/">← Back to home</a></p>
+  </div>
+</div>
+<div class="container uc" aria-hidden="true">
   <a href="/" class="back">&larr; Back</a>
   <h1>Things Different About Me</h1>
   <p class="note">A running list. Last added: September 2026.</p>
@@ -47,5 +81,13 @@ a { color: #1a1a1a; }
     <li>The question I keep coming back to: everyone is born into the same system, most accept it, a few don't. Where does that difference live? (See <a href="questions">Questions</a>.)</li>
   </ul>
 </div>
+<script>
+(function(){
+  function fmt(tz){ return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:tz}).format(new Date()); }
+  var tr=document.getElementById('clockTR'), sf=document.getElementById('clockSF');
+  function tick(){ tr.textContent=fmt('Europe/Istanbul'); sf.textContent=fmt('America/Los_Angeles'); }
+  tick(); setInterval(tick,1000);
+})();
+</script>
 </body>
 </html>
