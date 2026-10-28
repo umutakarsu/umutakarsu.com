@@ -2,7 +2,7 @@
    Keeps every page's structure; changes only type, color and small details. */
 
 html {
-  background: #f6f4ef; /* warm off-white, no pattern */
+  background: #fff;
 }
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;

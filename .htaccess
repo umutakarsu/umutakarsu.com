@@ -1,10 +1,5 @@
 RewriteEngine On
 
-# Temporary: site under construction. Remove this block to restore the full site.
-RewriteCond %{REQUEST_URI} !^/construction\.html$
-RewriteCond %{REQUEST_URI} !\.(css|js|png|jpe?g|gif|svg|ico|webp|woff2?)$ [NC]
-RewriteRule ^.*$ /construction.html [R=302,L]
-
 # Remove .html extension
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.html -f
